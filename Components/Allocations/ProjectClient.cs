@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,11 @@ namespace Allocations
 
         private async Task<ProjectInfo> DoGet(long projectId)
         {
+            var token = await _accessTokenFn();
+            
             _client.DefaultRequestHeaders.Accept.Clear();
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var streamTask = _client.GetStreamAsync($"project?projectId={projectId}");
 
             _logger.LogInformation($"Attempting to fetch projectId: {projectId}");
